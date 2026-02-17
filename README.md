@@ -25,7 +25,7 @@ r2rtr is an unsupervised tool for reconstructing complex tandem repeat architect
   * [Cite](#cite)
 
 ## Requirements
-rtrtr runs Linux and requires gcc 9.3.0+.
+r2rtr runs Linux and requires gcc 9.3.0+.
 
 
 ## Installation
