@@ -11,7 +11,7 @@ cd r2rtr && make -j8  # C++11 required to compile
 ```
 
 
-## Overview of rtrtr
+## Overview of r2rtr
 r2rtr is an unsupervised tool for reconstructing complex tandem repeat architectures directly from long-read sequencing data. By leveraging read-to-read overlap information, r2rtr enables high-fidelity reconstruction of centromeric, pericentromeric, macrosatellite, and complex coding array repeats without requiring reference genomes or predefined repeat libraries. The method is robust to sequencing errors and scalable across multiple species.
 ## Table of contents
 
