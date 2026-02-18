@@ -64,7 +64,7 @@ Options:
   -r INT     Specify the minimum read length to infer tandem repeat [default = 0]
   -n INT     Specify the minimum number of supports for the tandem repeat length [default = 10]
   -l INT     Specify the inferred minimum tandem repeat length [default = 10]
-  -c BOOL    Specify the accurate reads (e.g., HiFi, ONT-R10) [default = 0]
+  -c BOOL    Specify the accurate reads (e.g., HiFi, ONT-R10) [default = 0, current version's recommendation is 0]
   -t INT     Specify the thread number to extract repeats using multi-threading [default = 1]
   -b INT     Specify the batch size to extract repeats using multi-threading [default = 100]
 ```
