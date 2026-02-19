@@ -57,8 +57,8 @@ Basic command:
 ```
 The specific parameters are as follows:
 ```bash
-Version 1.0.2
-Usage: ./centroAnno [Options:] <in.fa>
+Version 1.0.0
+Usage: ./r2rtr/r2rtr [Options:] <in.paf/paf.gz> -f <read.fa/fq/fq.gz>
 Options:
   -f STR     Specify the read file path with fasta/fastq type [required parameters]
   -r INT     Specify the minimum read length to infer tandem repeat [default = 0]
