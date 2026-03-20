@@ -192,15 +192,15 @@ std::vector<tr_paf_rec_t> run_minimap2_in_memory(
     /***************************************/
 
     /***************************************/
-    iopt.k = 9;      
-    iopt.w = 5;       
-    mopt.zdrop = 999999;            
-    mopt.zdrop_inv = 999999;      
-    mopt.flag |= MM_F_CIGAR; 
-    mopt.min_chain_score = 15;
-    mopt.min_cnt = 1;      
-    mopt.bw = 500;
-    mopt.max_gap = 500; 
+    // iopt.k = 9;      
+    // iopt.w = 5;       
+    // mopt.zdrop = 999999;            
+    // mopt.zdrop_inv = 999999;      
+    // mopt.flag |= MM_F_CIGAR; 
+    // mopt.min_chain_score = 15;
+    // mopt.min_cnt = 1;      
+    // mopt.bw = 500;
+    // mopt.max_gap = 500; 
     /***************************************/
   
 
