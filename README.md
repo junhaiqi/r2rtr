@@ -56,12 +56,12 @@ cp lib/libspoa.a ../r2rtr/lib/
 
 Basic command:
 ```bash
-./r2rtr [Options:] <in.paf/paf.gz> -f <read.fa/fq/fq.gz>
+./r2rtr [Options:] <read.fa/fq/fq.gz>
 ```
 The specific parameters are as follows:
 ```bash
 Version 1.1.0
-Usage: ./r2rtr/r2rtr [Options:] <in.paf/paf.gz> -f <read.fa/fq/fq.gz>
+Usage: ./r2rtr/r2rtr [Options:] <read.fa/fq/fq.gz>
 Options:
   -f STR     Specify the PAF file path from fasta/fastq type [default = None]
   -r INT     Specify the minimum read length to infer tandem repeat [default = 0]
