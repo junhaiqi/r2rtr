@@ -55,7 +55,11 @@ void get_trs(const char *fa_path, trs_h &r_trs, tr_p_aln_info &tr_aln_lib, score
             if (cp_num_to_css < 2 ||
                 tr_css.size() > (1 + max_len_diff) * tr_len ||
                 tr_css.size() < (1 - max_len_diff) * tr_len)
-                continue;
+                {
+                    // std::cerr << "failed ccs!\n" << cp_num_to_css << "\t" << tr_css.size() << "\n";
+                    continue;
+                }
+                
 
             if (s_lib.find(name) != s_lib.end())
             {
@@ -84,13 +88,6 @@ void get_trs(const char *fa_path, trs_h &r_trs, tr_p_aln_info &tr_aln_lib, score
     kseq_destroy(ks);
     gzclose(fp);
 }
-
-// Define a simple struct to buffer sequence data
-struct SeqRecord
-{
-    std::string name;
-    std::string seq;
-};
 
 void para_get_trs(const char *fa_path, trs_h &r_trs, tr_p_aln_info &tr_aln_lib, score_h &s_lib, const int &batch_size, const int &td_n, const bool &hc)
 {
@@ -252,7 +249,7 @@ void from_alns_to_trs(const tr_p_aln_info &tr_aln_lib, trs_h &r_trs, const int &
         // if (tr_l != -1)
         //     r_trs[ qn_kv.first ] = tr_l;
 
-        // std::cerr << tr_l << "****\n";
+        // std::cerr << "TRL:" << tr_l << "****\n";
 
         if (tr_l >= min_tr_l)
         {

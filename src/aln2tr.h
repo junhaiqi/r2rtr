@@ -11,4 +11,12 @@ int dist_vec_to_tr_l(const std::vector<int> &d_vec, const int &min_sp_num, int &
 void get_trs(const char *fa_path, trs_h &r_trs, tr_p_aln_info &tr_aln_lib, score_h &s_lib, const bool &hc);                                              // Get tandem repeat sequences based on inferred length.
 void para_get_trs(const char *fa_path, trs_h &r_trs, tr_p_aln_info &tr_aln_lib, score_h &s_lib, const int &batch_size, const int &td_n, const bool &hc); // Muti-thread version of `get_trs`
 
+// Define a simple struct to buffer sequence data
+struct SeqRecord
+{
+    std::string name;
+    std::string seq;
+};
+
+
 #endif // !ALN2TR_H./

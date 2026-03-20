@@ -14,7 +14,7 @@ int get_trcss(const std::string &qn_seq, const int &pos, const int &tr_l, std::s
     size_t step = static_cast<size_t>(tr_l);
     size_t total_len = qn_seq.length();
     
-    int max_sub_n = 10; // Subsequences number to generate ccs, it can be changed
+    int max_sub_n = 3; // Subsequences number to generate ccs, it can be changed
     if (step <= 10)
         max_sub_n = 5;
 
