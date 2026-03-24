@@ -82,7 +82,7 @@ Reconstruct tandem repeat units from a FASTA file and its corresponding PAF file
 ./r2rtr test/test.fa -f test/test.paf  >test/test.out.fa
 ```
 
-Reconstruct tandem repeat units from a FASTA file (Note: The sensitivity is slightly lower than the version of the PAF file provided by the user)
+Reconstruct tandem repeat units from a FASTA file (Note: The sensitivity is lower than the version of the PAF file provided by the user)
 
 ```bash
 ./r2rtr test/test.fa >test/test.out.fa
