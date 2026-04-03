@@ -244,6 +244,37 @@ std::vector<tr_paf_rec_t> run_minimap2_in_memory(
 }
 
 
+// Structure to hold sequence region info
+struct SeqRegion {
+    std::string name;
+    std::string seq;
+};
+
+// Extract prefix, suffix, and middle regions from a sequence
+static std::vector<SeqRegion> extract_regions(const std::string& q_name, const std::string& q_seq, size_t region_len = 600) {
+    std::vector<SeqRegion> regions;
+    size_t q_len = q_seq.length();
+
+    if (q_len == 0) return regions;
+
+    // Prefix: beginning of sequence
+    size_t prefix_len = std::min(region_len, q_len);
+    regions.push_back({"prefix_" + q_name, q_seq.substr(0, prefix_len)});
+
+    // Suffix: end of sequence (only if sequence is long enough)
+    if (q_len > region_len) {
+        regions.push_back({"suffix_" + q_name, q_seq.substr(q_len - region_len, region_len)});
+    }
+
+    // Middle: center of sequence (only if sequence is long enough)
+    if (q_len > region_len * 2) {
+        size_t start_pos = (q_len - region_len) / 2;
+        regions.push_back({"mid_" + q_name, q_seq.substr(start_pos, region_len)});
+    }
+
+    return regions;
+}
+
 tr_p_aln_info process_reads_serial(
     const std::string &filepath,
     int best_n)
@@ -257,7 +288,6 @@ tr_p_aln_info process_reads_serial(
     }
 
     kseq_t *seq = kseq_init(fp);
-    size_t count = 0;
 
     while (kseq_read(seq) >= 0)
     {
@@ -266,19 +296,55 @@ tr_p_aln_info process_reads_serial(
         std::string q_name = seq->name.s;
         std::string q_seq = seq->seq.s;
 
-        size_t ref_len = std::min((size_t)500, q_seq.length());
-        std::string r_seq = q_seq.substr(0, ref_len);
-        std::string r_name = "prefix_" + q_name;
+        // Extract prefix, suffix, and middle regions
+        auto regions = extract_regions(q_name, q_seq, 500);
 
-        auto alns = run_minimap2_in_memory(
-            r_name.c_str(), r_seq.c_str(),
-            q_name.c_str(), q_seq.c_str(),
-            best_n);
-        
-        if (alns.size() > 1)
+        // Strategy: prioritize prefix, only try alternatives if prefix fails
+        std::string best_r_name;
+        std::vector<tr_paf_rec_t> best_alns;
+        bool found_valid = false;
+
+        // First, try prefix (most reliable for tandem repeats)
+        for (const auto& region : regions) {
+            if (region.name.find("prefix_") == 0) {
+                auto alns = run_minimap2_in_memory(
+                    region.name.c_str(), region.seq.c_str(),
+                    q_name.c_str(), q_seq.c_str(),
+                    best_n);
+
+                if (alns.size() > 1) {
+                    best_r_name = region.name;
+                    best_alns = std::move(alns);
+                    found_valid = true;
+                    break;  // Prefix succeeded, use it
+                }
+            }
+        }
+
+        // If prefix failed, try suffix and middle
+        if (!found_valid) {
+            size_t best_aln_count = 0;
+            for (const auto& region : regions) {
+                if (region.name.find("prefix_") == 0) continue;  // Skip prefix, already tried
+
+                auto alns = run_minimap2_in_memory(
+                    region.name.c_str(), region.seq.c_str(),
+                    q_name.c_str(), q_seq.c_str(),
+                    best_n);
+
+                if (alns.size() > best_aln_count) {
+                    best_aln_count = alns.size();
+                    best_r_name = region.name;
+                    best_alns = std::move(alns);
+                    found_valid = true;
+                }
+            }
+        }
+
+        // Store the alignment result if valid
+        if (found_valid && best_alns.size() > 1)
         {
-            // std::cerr << alns.size() << "\n";
-            final_results[q_name][r_name] = std::move(alns);
+            final_results[q_name][best_r_name] = std::move(best_alns);
         }
     }
 
@@ -319,25 +385,55 @@ tr_p_aln_info process_reads_parallel(const std::string &filepath, int best_n, in
             const std::string &q_name = all_seqs[i].name;
             const std::string &q_seq = all_seqs[i].seq;
 
-            size_t ref_len = std::min((size_t)500, q_seq.length());
-            std::string r_seq = q_seq.substr(0, ref_len);
-            std::string r_name = "prefix_" + q_name;
+            // Extract prefix, suffix, and middle regions
+            auto regions = extract_regions(q_name, q_seq, 500);
 
-            // size_t target_len = 500;
-            // size_t q_len = q_seq.length();
-            // size_t actual_len = std::min(target_len, q_len);
-            // size_t start_pos = (q_len > actual_len) ? (q_len - actual_len) / 2 : 0;
-            // std::string r_seq = q_seq.substr(start_pos, actual_len);
-            // std::string r_name = "mid_" + q_name;
+            // Strategy: prioritize prefix, only try alternatives if prefix fails
+            std::string best_r_name;
+            std::vector<tr_paf_rec_t> best_alns;
+            bool found_valid = false;
 
-            auto alns = run_minimap2_in_memory(
-                r_name.c_str(), r_seq.c_str(),
-                q_name.c_str(), q_seq.c_str(),
-                best_n);
+            // First, try prefix (most reliable for tandem repeats)
+            for (const auto& region : regions) {
+                if (region.name.find("prefix_") == 0) {
+                    auto alns = run_minimap2_in_memory(
+                        region.name.c_str(), region.seq.c_str(),
+                        q_name.c_str(), q_seq.c_str(),
+                        best_n);
 
-            if (alns.size() > 1)
+                    if (alns.size() > 1) {
+                        best_r_name = region.name;
+                        best_alns = std::move(alns);
+                        found_valid = true;
+                        break;  // Prefix succeeded, use it
+                    }
+                }
+            }
+
+            // If prefix failed, try suffix and middle
+            if (!found_valid) {
+                size_t best_aln_count = 0;
+                for (const auto& region : regions) {
+                    if (region.name.find("prefix_") == 0) continue;  // Skip prefix, already tried
+
+                    auto alns = run_minimap2_in_memory(
+                        region.name.c_str(), region.seq.c_str(),
+                        q_name.c_str(), q_seq.c_str(),
+                        best_n);
+
+                    if (alns.size() > best_aln_count) {
+                        best_aln_count = alns.size();
+                        best_r_name = region.name;
+                        best_alns = std::move(alns);
+                        found_valid = true;
+                    }
+                }
+            }
+
+            // Store the alignment result if valid
+            if (found_valid && best_alns.size() > 1)
             {
-                local_threads_map[q_name][r_name] = std::move(alns);
+                local_threads_map[q_name][best_r_name] = std::move(best_alns);
             }
         }
 #pragma omp critical(merge_final)
